@@ -26,7 +26,7 @@
 
 import wingapi
 import re
-from sets import Set
+Set = set
 
 __future_import_re = re.compile('(?P<indent>\s*)from\s+__future__\s+import\s(?P<items>[^#]*)(?P<comment>(#.*)?)')
 __global_import_re = re.compile('(?P<indent>\s*)import\s(?P<items>[^#]*)(?P<comment>(#.*)?)')
@@ -36,7 +36,7 @@ __endl_re = re.compile('\n?$')
 
 def _sorted(l, key=lambda x: x):
     l = map(lambda x: (key(x), x), list(l))
-    l.sort()
+    l = sorted(l)
     l = map(lambda pair: pair[1], l)
     return l
 
@@ -82,7 +82,7 @@ def _split_import(regex, line):
     """splits import line (using regex) intro triple: module (may be None), set_of_items, line_template"""
     imports = regex.match(line)
     if not imports:
-        raise ValueError, 'this line isn\'t an import'
+        raise ValueError('this line isn\'t an import')
     indent, items, comment = map(lambda name: imports.groupdict()[name], 'indent items comment'.split())
     module = imports.groupdict().get('module')
     if items.startswith('(') and items.endswith(')'):
@@ -138,7 +138,7 @@ def _repair_any(line):
     elif _is_boring(line):
         return line
     else:
-        raise ValueError, '"%s" isn\'t an import line' % line.rstrip()
+        raise ValueError('"%s" isn\'t an import line' % line.rstrip())
 
 
 def _fixed(lines):
@@ -160,8 +160,10 @@ def _fix_safely(lines):
     return lines
 
 
-def sort_imports(editor=wingapi.kArgEditor):
+def sort_imports():
     """WingIDE command entry point for sorting imports"""
+    app = wingapi.gApplication
+    editor = app.GetActiveEditor()
     document = editor.GetDocument()
     document.BeginUndoAction()
     fixed = _fix_safely(document.GetText().split('\n'))
